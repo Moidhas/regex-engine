@@ -36,7 +36,7 @@ public:
         }
     }
 
-    void isEmpty() {
+    bool isEmpty() {
         return head == nullptr;
     }
 
@@ -45,6 +45,7 @@ public:
         Node<T> *next = head->getNext();
         delete head;
         head = next;
+        return value;
     }
 };
 

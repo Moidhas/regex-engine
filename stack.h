@@ -35,6 +35,8 @@ public:
     bool isEmpty() { return top == -1; }
 
     T pop() { return buffer[top--]; }
+
+    T getTop() { return buffer[top]; }
 };
 
 #endif 
