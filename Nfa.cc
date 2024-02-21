@@ -11,3 +11,18 @@ Nfa::Nfa(State *start, State *accept): accept{accept}, start{start} {
 
 Nfa::~Nfa() { delete start; }
 
+std::ostream &operator<<(std::ostream &out, const Nfa &nfa) {
+    Queue<Nfa::State *> q;
+    q.enqueue(nfa.start);
+
+    while (!q.isEmpty()) {
+        Nfa::State *curr = q.dequeue();
+        std::string s = curr->trans == 0 ? "epsilon" : std::string{curr->trans};
+        out << s << ", ";
+
+        if (curr->s1) q.enqueue(curr->s1);
+        if (curr->s2) q.enqueue(curr->s2);
+    }
+
+    return out;
+}

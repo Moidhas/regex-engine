@@ -1,9 +1,9 @@
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <sstream>
 #include "queue.h"
 #include "stack.h"
+#include "Nfa.h"
 
 # define TOKEN_LENGTH 16
 const char concat = char(128);
@@ -84,7 +84,6 @@ std::string shuntingYard(const std::string &line) {
     return oss.str();
 }
 
-
 int main(int argc, char *argv[]) {
-    std::cout << shuntingYard(concatString(argv[1])) << std::endl;
+    std::cout << Nfa{'a'} << std::endl;
 }

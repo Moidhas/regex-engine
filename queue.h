@@ -1,4 +1,5 @@
-#ifndef __QUEUE_H
+#ifndef __QUEUE_H_
+#define __QUEUE_H_
 
 template <typename T> class Node {
     T data;
@@ -43,10 +44,11 @@ public:
     T dequeue() { 
         T value = head->getValue();
         Node<T> *next = head->getNext();
+        if (head == tail) tail = next;
         delete head;
         head = next;
         return value;
     }
 };
 
-#endif // __QUEUE_H
+#endif // __QUEUE_H_

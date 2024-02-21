@@ -1,11 +1,15 @@
 #ifndef __NFA_H__
 #define __NFA_H__
 #include <stdexcept>
+#include <iostream>
+#include <string>
+#include "queue.h"
 
 const char epsilon = 0;
 
 class Nfa {
     struct State {
+        // describes the transition to this state. 
         char trans;
         bool isAccept;
         State *s1;
@@ -15,6 +19,7 @@ class Nfa {
 
         ~State() {
             delete s1;
+            // makes sure double deletes is impossible.
             s1 = nullptr;
             delete s2;
             s2 = nullptr;
@@ -40,10 +45,14 @@ class Nfa {
     }
 
 public:
+    // creates a start state that has an epsilon transition to an accepting state.
     Nfa();
+    // creates a start state that has a char a transition to an accepting state.
     Nfa(char a);
     Nfa(State *start, State *accept);
-    ~Nfa(); 
+    ~Nfa();
+
+    friend std::ostream &operator<<(std::ostream &out, const Nfa &nfa);
 
     static Nfa *unions(Nfa *n1, Nfa *n2) {
         if (n1 == nullptr || n2 == nullptr) return n1 ? n1 : n2;
