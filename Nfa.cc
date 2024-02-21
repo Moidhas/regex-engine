@@ -24,8 +24,10 @@ class Nfa {
     static void cleanup(Nfa *n1, Nfa *n2) {
         Nfa *arr[2] = {n1, n2};
         for (int i = 0; i < 2; ++i) {
-            arr[i]->accept = nullptr;
-            arr[i]->start = nullptr;
+            if (arr[i]) {
+                arr[i]->accept = nullptr;
+                arr[i]->start = nullptr;
+            }
         }
     }
 
@@ -68,6 +70,17 @@ public:
         delete n2->start;
 
         cleanup(n1, n2);
+
+        return new Nfa{start, accept};
+    }
+
+    static Nfa *kleen(Nfa *n1) {
+        State *accept = new State{epsilon, true};
+        State *start = State::startFactory(n1->start, accept);
+        n1->accept->isAccept = false;
+        n1->accept->s1 = accept;
+        n1->accept->s2 = n1->start;
+        cleanup(n1, nullptr);
 
         return new Nfa{start, accept};
     }
