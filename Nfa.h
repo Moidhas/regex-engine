@@ -61,7 +61,7 @@ public:
         return Nfa{start, accept};
     }
 
-    static Nfa kleen(Nfa n1) {
+    static Nfa kleene(Nfa n1) {
         auto accept = std::make_shared<State>(epsilon, true);
         auto start = State::startFactory(n1.start, accept);
         n1.accept->isAccept = false;
@@ -70,6 +70,26 @@ public:
 
         return  Nfa{start, accept};
     } 
+
+    static Nfa oneOrZero(Nfa n1) {
+        auto accept = std::make_shared<State>(epsilon, true);
+        auto start = State::startFactory(n1.start, accept);
+        n1.accept->isAccept = false;
+        n1.accept->s1 = accept;
+
+        return Nfa{start, accept};
+    }
+
+    static Nfa atLeastOne(Nfa n1) {
+        auto start = State::startFactory(n1.start);
+        auto accept = std::make_shared<State>(epsilon, true);
+
+        n1.accept->isAccept = false;
+        n1.accept->s1 = accept;
+        n1.accept->loop = n1.start;
+
+        return  Nfa{start, accept};
+    }
 };
 
 #endif 

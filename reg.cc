@@ -13,13 +13,10 @@ const int split = 257;
 
 int ordonality(char c) {
     switch (c) {
-        case '\\': return 2;
         case '+':
         case '?': 
         case '*': return 1;
         case concat: return 0;
-        case '^':
-        case '$': return -1;
         case '|': return -2;
         default: return nonValues;
     }
@@ -85,8 +82,5 @@ std::string shuntingYard(const std::string &line) {
 }
 
 int main(int argc, char *argv[]) {
-    Nfa a =  Nfa{'a'};
-    Nfa b =  Nfa{'b'};
-    Nfa nfa = Nfa::kleen(a);
-    std::cout << nfa << std::endl;
+
 }
