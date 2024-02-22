@@ -2,6 +2,7 @@
 #define __NFA_H__
 #include <stdexcept>
 #include <iostream>
+#include <memory>
 #include <string>
 #include "queue.h"
 
@@ -12,91 +13,63 @@ class Nfa {
         // describes the transition to this state. 
         char trans;
         bool isAccept;
-        State *s1;
-        State *s2;
-        State(char trans, bool isAccept, State *s1 = nullptr, State *s2 = nullptr):
+        std::shared_ptr<State> s1;
+        std::shared_ptr<State> s2;
+        std::weak_ptr<State> loop;
+        State(char trans, bool isAccept, std::shared_ptr<State> s1 = nullptr, std::shared_ptr<State> s2 = nullptr):
             trans{trans}, isAccept{isAccept}, s1{s1}, s2{s2} {}
 
-        ~State() {
-            delete s1;
-            // makes sure double deletes is impossible.
-            s1 = nullptr;
-            delete s2;
-            s2 = nullptr;
-        }
-
-        static State *startFactory(State *s1 = nullptr, State *s2 = nullptr) {
-            return new State{epsilon, false, s1, s2};
+        static std::shared_ptr<State> startFactory(std::shared_ptr<State> s1 = nullptr, std::shared_ptr<State> s2 = nullptr) {
+            return std::make_shared<State>(epsilon, false, s1, s2);
         }
 
     };
 
-    State *accept;
-    State *start;
-
-    static inline void cleanup(Nfa *n1, Nfa *n2) {
-        Nfa *arr[2] = {n1, n2};
-        for (int i = 0; i < 2; ++i) {
-            if (arr[i]) {
-                arr[i]->accept = nullptr;
-                arr[i]->start = nullptr;
-            }
-        }
-    }
+    std::shared_ptr<State> accept;
+    std::shared_ptr<State> start;
+    Nfa(std::shared_ptr<State> start, std::shared_ptr<State> accept);
 
 public:
     // creates a start state that has an epsilon transition to an accepting state.
     Nfa();
     // creates a start state that has a char a transition to an accepting state.
     Nfa(char a);
-    Nfa(State *start, State *accept);
-    ~Nfa();
 
     friend std::ostream &operator<<(std::ostream &out, const Nfa &nfa);
 
-    static Nfa *unions(Nfa *n1, Nfa *n2) {
-        if (n1 == nullptr || n2 == nullptr) return n1 ? n1 : n2;
-        State *start = State::startFactory(n1->start, n2->start);
-        State *accept = new State{epsilon, true};
+    // the following static methods invalidate n1, and n2. 
+    static Nfa unions(Nfa n1, Nfa n2) {
+        auto start = State::startFactory(n1.start, n2.start);
+        auto accept = std::make_shared<State>(epsilon, true);
         
-        // allows for destruction of useless Nfas.
-        Nfa *arr[2] = {n1, n2};
+        Nfa *arr[2] = {&n1, &n2};
         for (int i = 0; i < 2; ++i) {
             arr[i]->accept->isAccept = false;
             arr[i]->accept->s1 = accept;
-            arr[i]->accept = nullptr;
-            arr[i]->start = nullptr;
         }
 
-        return new Nfa{start, accept};
+        return Nfa{start, accept};
     }
 
+    static Nfa concat(Nfa n1, Nfa n2) {
+        auto start = n1.start;
+        auto accept = n2.accept;
+        n1.accept->isAccept = false;
+        n1.accept->s1 = n2.start->s1;
+        n1.accept->s2 = n2.start->s2;
 
-    static Nfa *concat(Nfa *n1, Nfa *n2) {
-        if (n1 == nullptr || n2 == nullptr) return n1 ? n1 : n2;
-        State *start = n1->start;
-        State *accept = n2->accept;
-        n1->accept->isAccept = false;
-        n1->accept->s1 = n2->start->s1;
-        n1->accept->s2 = n2->start->s2;
-
-        delete n2->start;
-
-        cleanup(n1, n2);
-
-        return new Nfa{start, accept};
+        return Nfa{start, accept};
     }
 
-    static Nfa *kleen(Nfa *n1) {
-        State *accept = new State{epsilon, true};
-        State *start = State::startFactory(n1->start, accept);
-        n1->accept->isAccept = false;
-        n1->accept->s1 = accept;
-        n1->accept->s2 = n1->start;
-        cleanup(n1, nullptr);
+    static Nfa kleen(Nfa n1) {
+        auto accept = std::make_shared<State>(epsilon, true);
+        auto start = State::startFactory(n1.start, accept);
+        n1.accept->isAccept = false;
+        n1.accept->s1 = accept;
+        n1.accept->loop = n1.start;
 
-        return new Nfa{start, accept};
-    }
+        return  Nfa{start, accept};
+    } 
 };
 
 #endif 

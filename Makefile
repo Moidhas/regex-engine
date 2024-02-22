@@ -1,7 +1,7 @@
 CXX = g++-13
 CXXFLAG = -std=c++20 -Wall -g -MMD
 EXEC= regrep
-OBJECTS= reg.o Nfa.o
+OBJECTS= reg.o nfa.o
 DEPENDS= ${OBJECTS:.o=.d}
 
 ${EXEC}: ${OBJECTS}
@@ -11,5 +11,5 @@ ${EXEC}: ${OBJECTS}
 
 PHONY: clean
 clean:
-	rm ${OBJECTS} ${DEPENDS} ${EXEC}
+	rm ${OBJECTS} ${EXEC}
 

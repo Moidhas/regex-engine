@@ -6,6 +6,7 @@ template <typename T> class Node {
     Node<T> *next;
 public:
     Node(T data, Node<T> *next = nullptr): data{data}, next{next} {}
+    ~Node() { delete next; }
     void setNext(Node<T> *node) { next = node; }
     Node<T> *getNext() { return next; }
     T getValue() { return data; }
@@ -17,14 +18,7 @@ template <typename T> class Queue {
 public:
     Queue(): head{nullptr}, tail{nullptr} {}
 
-    ~Queue() {
-        while (head != nullptr) {
-            Node<T> *nextNode = head->getNext();
-            delete head;
-            head = nextNode;
-        }
-        tail = nullptr;
-    }
+    ~Queue() { delete head; }
 
     void enqueue(T item) {
         Node<T> *node = new Node<T>{item};
@@ -45,6 +39,7 @@ public:
         T value = head->getValue();
         Node<T> *next = head->getNext();
         if (head == tail) tail = next;
+        head->setNext(nullptr);
         delete head;
         head = next;
         return value;
