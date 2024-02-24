@@ -1,15 +1,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include "queue.h"
 #include "stack.h"
 #include "nfa.h"
 
-# define TOKEN_LENGTH 16
 const char concat = char(128);
 const int nonValues = -3;
-const int accepting = 257;
-const int split = 257;
 
 int ordonality(char c) {
     switch (c) {
@@ -81,6 +79,43 @@ std::string shuntingYard(const std::string &line) {
     return oss.str();
 }
 
-int main(int argc, char *argv[]) {
+Nfa regexToNfa(const std::string &pattern) {
+    try {
+        std::string regex = shuntingYard(concatString(pattern));
+        Stack<Nfa> s;
+        for (char c: regex) {
+            if (c == '+') {
+                s.push(Nfa::atLeastOne(s.pop()));
+            } else if (c == '?') {
+                s.push(Nfa::oneOrZero(s.pop()));
+            } else if (c == '*') {
+                s.push(Nfa::kleene(s.pop()));
+            } else if (c == concat) {
+                Nfa n2 = s.pop();
+                Nfa n1 = s.pop();
+                s.push(Nfa::concat(n1, n2));
+            } else if (c == '|') {
+                Nfa n2 = s.pop();
+                Nfa n1 = s.pop();
+                s.push(Nfa::unions(n1, n2));
+            } else {
+                s.push(Nfa{c});
+            }
+        }
+        return s.pop();
+    } catch (std::out_of_range r) {
+        throw std::runtime_error{"regex pattern has an invalid format"};
+    }
+}
 
+int main(int argc, char *argv[]) {
+    std::cout << shuntingYard(concatString(argv[1])) << std::endl;
+    try {
+        Nfa nfa = regexToNfa(argv[1]);
+        std::cout << nfa << std::endl;
+        std::string b = nfa.match(argv[2]) ? "match" : "not matched";
+        std::cout << b << std::endl;
+    } catch (std::out_of_range r) {
+        std::cerr << r.what() << std::endl; 
+    }
 }

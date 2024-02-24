@@ -1,6 +1,7 @@
 #ifndef __STACK_H__
 #define __STACK_H__
 
+#include <stdexcept>
 #include <utility>
 
 template <typename T> class Stack {
@@ -34,9 +35,15 @@ public:
 
     bool isEmpty() { return top == -1; }
 
-    T pop() { return buffer[top--]; }
+    T pop() { 
+        if (top < 0) throw std::out_of_range{"popping top of empty stack"};
+        return buffer[top--]; 
+    }
 
-    T getTop() { return buffer[top]; }
+    T getTop() { 
+        if (top < 0) throw std::out_of_range{"accesing top of empty stack"};
+        return buffer[top]; 
+    }
 };
 
 #endif 

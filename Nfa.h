@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 #include "queue.h"
 
 const char epsilon = 0;
@@ -29,11 +30,23 @@ class Nfa {
     std::shared_ptr<State> start;
     Nfa(std::shared_ptr<State> start, std::shared_ptr<State> accept);
 
+    // given a set of current states returns all possible states reachable by one transition. 
+    std::vector<State *> getNextStates(const std::vector<State *> &currStates, char c);
+    // adds all states transitioned from state that are not epsilon to acc.
+    void addStates(Nfa::State *state, std::vector<Nfa::State *> &acc, char c);
+
+    // returns true if any of the states in finalStates is an accepting state. 
+    bool isMatch(const std::vector<State *> &finalStates);
+
 public:
     // creates a start state that has an epsilon transition to an accepting state.
     Nfa();
+
     // creates a start state that has a char a transition to an accepting state.
     Nfa(char a);
+    
+    // returns true if the word is accepted by the language described by the Nfa. 
+    bool match(const std::string &word);
 
     friend std::ostream &operator<<(std::ostream &out, const Nfa &nfa);
 
