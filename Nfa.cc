@@ -23,7 +23,7 @@ bool Nfa::match(const std::string &word) {
 
 void Nfa::addStates(Nfa::State *state, std::vector<Nfa::State *> &acc, char c) {
     if (state == nullptr) return;
-    if (state->trans == epsilon && ((state->s1 && state->s2) || (state->s1 && state->loop.lock().get()))) {
+    if (state->trans == epsilon && !state->isAccept) {
         addStates(state->s1.get(), acc, c);
         addStates(state->s2.get(), acc, c);
         addStates(state->loop.lock().get(), acc, c);

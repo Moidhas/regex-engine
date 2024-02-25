@@ -112,7 +112,6 @@ int main(int argc, char *argv[]) {
     std::cout << shuntingYard(concatString(argv[1])) << std::endl;
     try {
         Nfa nfa = regexToNfa(argv[1]);
-        std::cout << nfa << std::endl;
         std::string b = nfa.match(argv[2]) ? "match" : "not matched";
         std::cout << b << std::endl;
     } catch (std::out_of_range r) {
