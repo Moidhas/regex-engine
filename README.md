@@ -49,4 +49,5 @@ Once the project is compiled, you can use the regex engine by running the execut
 ./regrep "a*b" "aaab"   # match
 ./regrep "a+b" "aaab"   # match
 ./regrep "a?b" "ab"     # match
+./regrep "(a|b)*c" "abaabaabbaac" # match
 ```
