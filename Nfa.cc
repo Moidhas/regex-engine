@@ -11,6 +11,9 @@ Nfa::Nfa(std::shared_ptr<State> start, std::shared_ptr<State> accept): accept{ac
 
 bool Nfa::match(const std::string &word) {
     std::vector<Nfa::State *> currList{start.get()};
+    if (word.size() == 0) {
+        currList = getNextStates(currList, epsilon);
+    }
     for(char c: word) {
          currList = getNextStates(currList,  c);
     }
@@ -20,11 +23,11 @@ bool Nfa::match(const std::string &word) {
 
 void Nfa::addStates(Nfa::State *state, std::vector<Nfa::State *> &acc, char c) {
     if (state == nullptr) return;
-    if (state->trans == epsilon) {
-        addStates(state->s1.get(), acc,  c);
-        addStates(state->s2.get(), acc,  c);
-        addStates(state->loop.lock().get(), acc,  c);
-    } else if (state->trans == c) {
+    if (state->trans == epsilon && ((state->s1 && state->s2) || (state->s1 && state->loop.lock().get()))) {
+        addStates(state->s1.get(), acc, c);
+        addStates(state->s2.get(), acc, c);
+        addStates(state->loop.lock().get(), acc, c);
+    } else if (state->trans == c || state->trans == epsilon) {
         acc.emplace_back(state);
     }
 }
